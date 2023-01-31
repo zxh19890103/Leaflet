@@ -60,7 +60,10 @@ export const ImageOverlay = Layer.extend({
 		// as per the [`decoding` HTML attribute](https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/decoding).
 		// If the image overlay is flickering when being added/removed, set
 		// this option to `'sync'`.
-		decoding: 'auto'
+		decoding: 'auto',
+		// @option angle: Number = 0
+		// Use trasform.rotate to rotate the image. unit: deg.
+		angle: 0,
 	},
 
 	initialize(url, bounds, options) { // (String, LatLngBounds, Object)
@@ -174,6 +177,14 @@ export const ImageOverlay = Layer.extend({
 		return this;
 	},
 
+	// @method setAngle(value: Number): this
+	// Changes the transform/rotate value of thes image oervlay.
+	setAngle(angle) {
+		this.options.angle = angle;
+		this._reset();
+		return this;
+	},
+
 	// @method getBounds(): LatLngBounds
 	// Get the bounds that this ImageOverlay covers
 	getBounds() {
@@ -226,7 +237,7 @@ export const ImageOverlay = Layer.extend({
 		const scale = this._map.getZoomScale(e.zoom),
 		    offset = this._map._latLngBoundsToNewLayerBounds(this._bounds, e.zoom, e.center).min;
 
-		DomUtil.setTransform(this._image, offset, scale);
+		DomUtil.setTransform(this._image, offset, scale, angle);
 	},
 
 	_reset() {
@@ -236,7 +247,7 @@ export const ImageOverlay = Layer.extend({
 		        this._map.latLngToLayerPoint(this._bounds.getSouthEast())),
 		    size = bounds.getSize();
 
-		DomUtil.setPosition(image, bounds.min);
+		DomUtil.setPosition(image, bounds.min, this.options.angle);
 
 		image.style.width  = `${size.x}px`;
 		image.style.height = `${size.y}px`;
